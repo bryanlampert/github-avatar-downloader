@@ -6,6 +6,7 @@ var repo = process.argv[3];
 
 console.log('Welcome to the GitHub Avatar Downloader!');
 
+// Function to check if user had entered an owner and repo name
 function checkInput(rOwner, rName) {
   if (rOwner === undefined || rOwner === '' || rOwner === ' ') {
     return false;
@@ -16,6 +17,7 @@ function checkInput(rOwner, rName) {
   }
 }
 
+//Function to receive the repo and parses the info
 function getRepoContributors(repoOwner, repoName, cb) {
 
   var options = {
@@ -31,7 +33,8 @@ function getRepoContributors(repoOwner, repoName, cb) {
   });
 }
 
-
+/* Function to download the images from the urls.
+Also logs the image that is being downloaded */
 function downloadImageByURL(url, filePath) {
   request.get(url)
     .on('error', function(err) {
@@ -46,6 +49,9 @@ function downloadImageByURL(url, filePath) {
     });
 }
 
+/* Conditional to check if valid input was received.
+If true, then executes the getRepoContributors function and downloadImageByURL function
+If false, log returns looking for valid input */
 if (checkInput(owner, repo)) {
   getRepoContributors(owner, repo, function(err, result) {
     console.log("Errors:", err);
