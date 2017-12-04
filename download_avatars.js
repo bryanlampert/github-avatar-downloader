@@ -16,23 +16,19 @@ function checkInput(rOwner, rName) {
   }
 }
 
-if (checkInput(owner, repo)) {
-  function getRepoContributors(repoOwner, repoName, cb) {
+function getRepoContributors(repoOwner, repoName, cb) {
 
-    var options = {
-      url: "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/contributors",
-      headers: {
-        'User-Agent': 'request',
-        'Authorization': 'token ' + authToken.GITHUB_TOKEN
-      }
-    };
+  var options = {
+    url: "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/contributors",
+    headers: {
+      'User-Agent': 'request',
+      'Authorization': 'token ' + authToken.GITHUB_TOKEN
+    }
+  };
 
-    request(options, function(err, res, body) {
-      cb(err, JSON.parse(body));
-    });
-  }
-} else {
-  return console.log("Please enter a valid owner and repo!");
+  request(options, function(err, res, body) {
+    cb(err, JSON.parse(body));
+  });
 }
 
 
@@ -50,9 +46,13 @@ function downloadImageByURL(url, filePath) {
     });
 }
 
-getRepoContributors(owner, repo, function(err, result) {
-  console.log("Errors:", err);
-  for (var i = 0; i < result.length; i++) {
-    downloadImageByURL(result[i].avatar_url, "avatars/" + result[i].login + ".jpg");
-  }
-});
+if (checkInput(owner, repo)) {
+  getRepoContributors(owner, repo, function(err, result) {
+    console.log("Errors:", err);
+    for (var i = 0; i < result.length; i++) {
+      downloadImageByURL(result[i].avatar_url, "avatars/" + result[i].login + ".jpg");
+    }
+  });
+} else {
+  return console.log("Please enter a valid owner and repo!");
+}
