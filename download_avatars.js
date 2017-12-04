@@ -6,20 +6,35 @@ var repo = process.argv[3];
 
 console.log('Welcome to the GitHub Avatar Downloader!');
 
-function getRepoContributors(repoOwner, repoName, cb) {
-
-  var options = {
-    url: "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/contributors",
-    headers: {
-      'User-Agent': 'request',
-      'Authorization': 'token ' + authToken.GITHUB_TOKEN
-    }
-  };
-
-  request(options, function(err, res, body) {
-    cb(err, JSON.parse(body));
-  });
+function checkInput(rOwner, rName) {
+  if (rOwner === undefined || rOwner === '' || rOwner === ' ') {
+    return false;
+  } else if (rName === undefined || rName === '' || rName === ' ') {
+    return false;
+  } else {
+    return true;
+  }
 }
+
+if (checkInput(owner, repo)) {
+  function getRepoContributors(repoOwner, repoName, cb) {
+
+    var options = {
+      url: "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/contributors",
+      headers: {
+        'User-Agent': 'request',
+        'Authorization': 'token ' + authToken.GITHUB_TOKEN
+      }
+    };
+
+    request(options, function(err, res, body) {
+      cb(err, JSON.parse(body));
+    });
+  }
+} else {
+  return console.log("Please enter a valid owner and repo!");
+}
+
 
 function downloadImageByURL(url, filePath) {
   request.get(url)
