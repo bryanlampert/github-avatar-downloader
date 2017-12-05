@@ -10,9 +10,41 @@ console.log('Welcome to the GitHub Avatar Downloader!');
 // Function to check if user had entered an owner and repo name
 function checkInput(rOwner, rName) {
   if (rOwner === undefined || rOwner === '' || rOwner === ' ') {
-    return false;
+    console.log("Please enter a valid owner and repo!");
   } else if (rName === undefined || rName === '' || rName === ' ') {
-    return false;
+    console.log("Please enter a valid owner and repo!");
+  } else {
+    return true;
+  }
+}
+
+//Checks if the avatars directory exists; if not, creates the directory
+fs.access("./avatars", function(err) {
+  if (err) {
+    fs.mkdir("./avatars");
+  }
+});
+
+fs.access(".env", function(err) {
+  if (err) {
+    console.log("No .env file found!");
+    return;
+  }
+});
+
+//Function to error handle for missing or incorrect .env file/information
+function checkEnvInfo(envFile) {
+  if (envFile === undefined || envFile === '' || envFile === ' ' || typeof(envFile) !== 'string') {
+    return console.log("Please enter a valid key!");
+  } else {
+    return true;
+  }
+}
+
+// Function to error handle if too many inputs were given
+function checkArgs() {
+  if (process.argv.length > 4) {
+    console.log("Too many inputs!");
   } else {
     return true;
   }
@@ -29,8 +61,13 @@ function getRepoContributors(repoOwner, repoName, cb) {
     }
   };
 
+  // Checks if owner/repo exists
   request(options, function(err, res, body) {
-    cb(err, JSON.parse(body));
+    if (res.statusCode !== 404) {
+      cb(err, JSON.parse(body));
+    } else {
+      console.log("Please provide an actual owner/repo!");
+    }
   });
 }
 
@@ -50,16 +87,20 @@ function downloadImageByURL(url, filePath) {
     });
 }
 
-/* Conditional to check if valid input was received.
-If true, then executes the getRepoContributors function and downloadImageByURL function
-If false, log returns looking for valid input */
-if (checkInput(owner, repo)) {
+/* Error Checking above functions
+If true, then executes the getRepoContributors function and downloadImageByURL function */
+if (checkInput(owner, repo) && checkEnvInfo(authToken) && checkArgs() ) {
   getRepoContributors(owner, repo, function(err, result) {
-    console.log("Errors:", err);
-    for (var i = 0; i < result.length; i++) {
-      downloadImageByURL(result[i].avatar_url, "avatars/" + result[i].login + ".jpg");
+    if (result.message !== 'Bad credentials') {
+      if (err === null) {
+        console.log("No errors encountered!");
+      }
+      for (var i = 0; i < result.length; i++) {
+        downloadImageByURL(result[i].avatar_url, "avatars/" + result[i].login + ".jpg");
+      }
+    } else {
+      console.log("Bad credentials!");
+      return;
     }
   });
-} else {
-  return console.log("Please enter a valid owner and repo!");
 }
