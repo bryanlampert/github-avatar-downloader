@@ -1,5 +1,7 @@
 secrets.js
 
+.env
+
 avatars/
 
 # Logs
